@@ -89,7 +89,10 @@ Use open-ai embeddings to train linear probes to detect bugs at pontentially low
 We welcome contributions to OpenBugger! If you find a bug or have an idea for a new feature, please open an issue or submit a pull request.
 
 
+OpenBugger is licensed under the
 
+Apache License 2.0
+A permissive license whose main conditions require preservation of copyright and license notices. Contributors provide an express grant of patent rights. Licensed works, modifications, and larger works may be distributed under different terms and without source code.
 
 
 
