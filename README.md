@@ -13,53 +13,61 @@ Clone repo
 python3 -m pip install --editable filepath_to/OpenBugger
 ```
 Usage
-To use OpenBugger, import the LogicInjector and LogicBug classes from the openbugger module and use them to create an injector and a bug, respectively. Then, call the inject() method of the injector and pass it the bug and the script as arguments. The injector will return the modified script with the injected bug.
+To use OpenBugger, import the SintaxBug or LogicBug classes from the openbugger module and use them to inject a bug with a call to the inject(). The injector will return the modified script with the injected bug.
 
 ```
-from openbugger import LogicInjector, LogicBug
+from syntax.syntax_injector import SyntaxInjector, SyntaxBug
 
-# Create an injector with a random severity level
-injector = LogicInjector()
+syntax_bug = SyntaxBug()
 
-# Create a bug with a random error type
-bug = LogicBug()
 
-# Inject the bug into the script
-modified_script = injector.inject(bug, "import random\n\nx = random.randint(0, 10)\nprint(x)")
 
-# Print the modified script
-print(modified_script)
+# Simple script
+simple_script = """
+def greet(name):
+    print("Hello, " + name)
+
+greet("Bob")
+"""
+ 
+print(simple_script)
 ```
-You can also specify the severity level and error type manually when creating the injector and bug:
+The simple script can be modified using the "easy" injection method because it only contains simple syntax and does not have any nested code blocks. 
+This means that there are fewer characters (e.g. quotes, brackets, braces, parenthesis) that could be the target of syntax errors,
+ and the "easy" injection method, which only injects errors that involve replacing or removing a single character, is sufficient to modify the script.
 ```
-from openbugger import LogicInjector, LogicBug
+# Inject easy syntax errors into the simple script
 
-# Create an injector with a medium severity level
-injector = LogicInjector(severity="medium")
-
-# Create a bug with a "forgotten_variable_update" error type
-bug = LogicBug(error_type="forgotten_variable_update")
-
-# Inject the bug into the script
-modified_script = injector.inject(bug, "import random\n\nx = random.randint(0, 10)\nprint(x)")
-
-# Print the modified script
-print(modified_script)
+modified_simple_script, errors, counter = syntax_bug.inject(simple_script, "easy", 1)
+print("Modified version Easy",errors,counter)
+print(modified_simple_script)
 ```
-You can also use the inject_random() method of the injector to inject a random bug into the script:
-
+Or for higher severity and logic error
 ```
-from openbugger import LogicInjector
+import inspect
+import random
+from logic.logic_injector import LogicBug
 
-# Create an injector with a random severity level
-injector = LogicInjector()
 
-# Inject a random bug into the script
-modified_script = injector.inject_random("import random\n\nx = random.randint(0, 10)\nprint(x)")
+# Medium example script
+def medium_script():
+    # Choose a random integer and assign it to a variable
+    num = random.randint(0, 10)
+    
+    # Use a loop to print all numbers from 0 to the chosen integer
+    for i in range(num):
+        print(i)
 
-# Print the modified script
-print(modified_script)
+# create an instance of the LogicBug class
+logic_bug = LogicBug()
+# get the source code of the medium_script function as a string
+medium_script_str = inspect.getsource(medium_script)
+print("Medium",medium_script_str)
+# inject a logic error into the medium_script function
+modified_medium_script, error, counter = logic_bug.inject(medium_script_str,"medium",num_errors=3)
 ```
+
+For more examples see syntax/example_syntax.py and logic/example_logic.py 
 
 # Done:
 Syntax errors: These are mistakes in the structure of the code that prevent it from being parsed by the interpreter. Examples include missing parentheses, incorrect indentation, and mismatched quotation marks.
