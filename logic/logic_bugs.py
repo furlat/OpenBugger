@@ -132,18 +132,18 @@ def incorrect_return_value(script, errors_dict):
     else:
         raise ValueError("No return statements found in script")
 
-def incorrect_boolean_operator(script, errors_dict):
-    # Choose a random boolean operator in the script (e.g., "and", "or") and replace it with the other boolean operator.
-    boolean_operators = errors_dict['incorrect_boolean_operator'][0]
-    pattern = errors_dict['incorrect_boolean_operator'][1][0]
-    boolean_ops = re.findall(pattern, script)
-    if boolean_ops:
-        curr_op = random.choice(boolean_ops)
-        boolean_operators.remove(curr_op)
-        new_op = boolean_operators[0]
-        return script.replace(curr_op, new_op, 1)
-    else:
-        raise ValueError("No boolean operators found in script")
+# def incorrect_boolean_operator(script, errors_dict):
+#     # Choose a random boolean operator in the script (e.g., "and", "or") and replace it with the other boolean operator.
+#     boolean_operators = errors_dict['incorrect_boolean_operator'][0]
+#     pattern = errors_dict['incorrect_boolean_operator'][1][0]
+#     boolean_ops = re.findall(pattern, script)
+#     if boolean_ops:
+#         curr_op = random.choice(boolean_ops)
+#         boolean_operators.remove(curr_op)
+#         new_op = boolean_operators[0]
+#         return script.replace(curr_op, new_op, 1)
+#     else:
+#         raise ValueError("No boolean operators found in script")
         
 def incorrect_use_of_ternary_operator(script, errors_dict):
     # Choose a random "if" or "else" in the script and replace it with the other keyword (e.g., "if" becomes "else" or vice versa).

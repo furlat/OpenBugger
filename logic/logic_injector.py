@@ -17,8 +17,8 @@ class LogicInjector:
             return logic_bugs.incorrect_function_call(script,self.errors)
         elif error_type == "incorrect_return_value":
             return logic_bugs.incorrect_return_value(script,self.errors)
-        elif error_type == "incorrect_boolean_operator":
-            return logic_bugs.incorrect_boolean_operator(script,self.errors)
+        # elif error_type == "incorrect_boolean_operator":
+        #     return logic_bugs.incorrect_boolean_operator(script,self.errors)
         elif error_type == "using_wrong_type_of_loop":
             return logic_bugs.using_wrong_type_of_loop(script,self.errors)
         elif error_type == "using_loop_variable_outside_loop":
@@ -50,7 +50,7 @@ class LogicBug:
         
         "incorrect_function_call": (["function", "arguments"], [r"[a-zA-Z_]+\s*\([a-zA-Z0-9_\s,]*\)"]),
         "incorrect_return_value": (["return"], [r"return\s[a-zA-Z0-9_\s]+"]),
-        "incorrect_boolean_operator": (["and", "or"], [r"\s(and|or)\s*"]),
+        # "incorrect_boolean_operator": (["and", "or"], [r"\s(and|or)\s*"]),
         "incorrect_use_of_boolean_operators": (["if", "else"], [r"\s*(if|else)\s*"]),
         "incorrect_use_of_ternary_operator": (["if", "else"], [r"\s*(if|else)\s*"]),
         "using_wrong_type_of_loop" : (["for"], [r"for\s*[a-zA-Z0-9_\s]+\sin\s[a-zA-Z0-9_\s()]+:"]),
@@ -65,7 +65,7 @@ class LogicBug:
 
         self.severity_mapping = {
 "easy": ["incorrect_comparison_operator", "forgotten_variable_update", "infinite_loop"],
-"medium": ["off_by_one_error", "incorrect_function_call", "incorrect_return_value", "incorrect_boolean_operator", "incorrect_use_of_boolean_operators", "incorrect_use_of_ternary_operator"],
+"medium": ["off_by_one_error", "incorrect_function_call", "incorrect_return_value",  "incorrect_use_of_boolean_operators", "incorrect_use_of_ternary_operator"],
 "hard": ["using_wrong_type_of_loop", "using_loop_variable_outside_loop", "using_variable_before_assignment", "using_wrong_variable_scope", "incorrect_use_of_exception_handling"]
 }
 
