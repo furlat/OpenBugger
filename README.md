@@ -42,7 +42,7 @@ modified_simple_script, errors, counter = syntax_bug.inject(simple_script, "easy
 print("Modified version Easy",errors,counter)
 print(modified_simple_script)
 ```
-Or for higher severity and logic error
+Or for higher severity and logic error by directly transforming a Python class into text
 ```
 import inspect
 import random
