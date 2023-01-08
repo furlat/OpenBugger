@@ -1,3 +1,3 @@
 import setuptools
 
-setuptools.setup(name='OpenBugger')
+setuptools.setup(name='OpenBugger', py_modules=[])
