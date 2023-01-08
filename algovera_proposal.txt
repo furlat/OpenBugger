@@ -1,0 +1,22 @@
+Name of Project: OpenBugger: a tool for injecting bugs into Python scripts
+
+Proposal in one sentence: Create a tool to automatically bug code to synthetically generate debugging instructions for tuning OpenAssistant 
+
+Description of the project and what problem it is solving:
+The OpenBugger project https://github.com/furlat/OpenBugger aims at generating large amount of synthetic conversations about debugging code between a user and an assistant. This data will be used as a part of Open-Assistant training set.
+To achieve this the bugger starts from a working code snippet and injects it with errors of several different types (currently ~30 syntax and logic error types ), finally the diads of working and bugged code are used to generate a conversation:
+e.g: User:"Is this code snippet correct?: {bugged code, bug_type, num_bugs}:
+     Assistant: "No the code snippet is not correct, it has {num_bugs} erorr of {bug_type}
+     User: "Can you fix the code?"
+     Assistant: "Sure, I will be glad to do it: {orginal_code}"
+ 
+Grant Deliverables:
+
+Python package at https://github.com/furlat/OpenBugger/tree/main/logic that will be used for OpenAssistant (demo version is already in main branch here https://github.com/LAION-AI/Open-Assistant/pull/418) 
+The main deliverable is exstending the current code to include Runtime errors, Type errors, Name errors, Import errors and Indentation errors as well as the scripts to map from tuple of code/bugged_code --> conversation.
+
+Squad:
+
+Name: ***************
+Twitter handle: @cyndesama
+Discord handle: iriden#1609
