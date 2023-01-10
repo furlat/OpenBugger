@@ -1,71 +1,108 @@
 import random
 import re
+
+
 class LogicInjector:
     def __init__(self, errors):
         self.errors = errors
-    def inject(self,script, error_type):
+
+    def inject(self, script, error_type):
         if error_type == "incorrect_comparison_operator":
-            return incorrect_comparison_operator(script,self.errors)        
+            return incorrect_comparison_operator(script, self.errors)
         elif error_type == "forgetting_to_update_variable":
-            return forgetting_to_update_variable(script,self.errors)         
+            return forgetting_to_update_variable(script, self.errors)
         elif error_type == "infinite_loop":
-            return infinite_loop(script,self.errors)           
+            return infinite_loop(script, self.errors)
         elif error_type == "off_by_one_error":
-            return off_by_one_error(script,self.errors)
+            return off_by_one_error(script, self.errors)
         elif error_type == "incorrect_function_call":
-            return incorrect_function_call(script,self.errors)
+            return incorrect_function_call(script, self.errors)
         elif error_type == "incorrect_return_value":
-            return incorrect_return_value(script,self.errors)
+            return incorrect_return_value(script, self.errors)
         # elif error_type == "incorrect_boolean_operator":
         #     return logic_bugs.incorrect_boolean_operator(script,self.errors)
         elif error_type == "using_wrong_type_of_loop":
-            return using_wrong_type_of_loop(script,self.errors)
+            return using_wrong_type_of_loop(script, self.errors)
         elif error_type == "using_loop_variable_outside_loop":
-            return using_loop_variable_outside_loop(script,self.errors)
+            return using_loop_variable_outside_loop(script, self.errors)
         elif error_type == "using_variable_before_assignment":
-            return using_variable_before_assignment(script,self.errors)
+            return using_variable_before_assignment(script, self.errors)
         elif error_type == "using_wrong_variable_scope":
-            return using_wrong_variable_scope(script,self.errors)
+            return using_wrong_variable_scope(script, self.errors)
         elif error_type == "incorrect_use_of_exception_handling":
-            return incorrect_use_of_exception_handling(script,self.errors)
-       
+            return incorrect_use_of_exception_handling(script, self.errors)
+
         else:
-            raise ValueError("Invalid error type")    
-
-
+            raise ValueError("Invalid error type")
 
 
 class LogicBug:
     def __init__(self):
         # define lists of different types of syntax errors that can be injected
-        
 
         self.errors = {
-        "incorrect_comparison_operator": (["==", "!=", "<", "<=", ">", ">="], [r"\s*([!<=>]{1,2})\s*"]),
-        "forgotten_variable_update": (["+=", "-=", "=", "/=", "%="], [r"[a-zA-Z]+\s*=\s*[a-zA-Z0-9]+"]),
-        "infinite_loop": (["while", "for"], [r"while\s*[a-zA-Z0-9_\s]+:"]),
-        "off_by_one_error": (["index", "slice"], [r"[[0-9]+]|[[0-9]+:[0-9]+]"]),
-        
-        "incorrect_function_call": (["function", "arguments"], [r"[a-zA-Z_]+\s*\([a-zA-Z0-9_\s,]*\)"]),
-        "incorrect_return_value": (["return"], [r"return\s[a-zA-Z0-9_\s]+"]),
-        # "incorrect_boolean_operator": (["and", "or"], [r"\s(and|or)\s*"]),
-        "incorrect_use_of_boolean_operators": (["if", "else"], [r"\s*(if|else)\s*"]),
-        "incorrect_use_of_ternary_operator": (["if", "else"], [r"\s*(if|else)\s*"]),
-        "using_wrong_type_of_loop" : (["for"], [r"for\s*[a-zA-Z0-9_\s]+\sin\s[a-zA-Z0-9_\s()]+:"]),
-        "using_loop_variable_outside_loop" : (["for"], [r"for\s*[a-zA-Z0-9_\s]+\sin\s[a-zA-Z0-9_\s()]+:"]),
-        "using_variable_before_assignment": ([], [r"[a-zA-Z]+\s*=\s*[a-zA-Z0-9]+"]),
-        "using_wrong_variable_scope" : (["local", "global", "nonlocal"], [r"(local|global|nonlocal)\s+[a-zA-Z0-9_\s]+"]),
-        "incorrect_use_of_exception_handling" : (["try", "except"], [r"(try|except)\s*[a-zA-Z0-9_\s:]+"]),
+            "incorrect_comparison_operator": (
+                ["==", "!=", "<", "<=", ">", ">="],
+                [r"\s*([!<=>]{1,2})\s*"],
+            ),
+            "forgotten_variable_update": (
+                ["+=", "-=", "=", "/=", "%="],
+                [r"[a-zA-Z]+\s*=\s*[a-zA-Z0-9]+"],
+            ),
+            "infinite_loop": (["while", "for"], [r"while\s*[a-zA-Z0-9_\s]+:"]),
+            "off_by_one_error": (["index", "slice"], [r"[[0-9]+]|[[0-9]+:[0-9]+]"]),
+            "incorrect_function_call": (
+                ["function", "arguments"],
+                [r"[a-zA-Z_]+\s*\([a-zA-Z0-9_\s,]*\)"],
+            ),
+            "incorrect_return_value": (["return"], [r"return\s[a-zA-Z0-9_\s]+"]),
+            # "incorrect_boolean_operator": (["and", "or"], [r"\s(and|or)\s*"]),
+            "incorrect_use_of_boolean_operators": (
+                ["if", "else"],
+                [r"\s*(if|else)\s*"],
+            ),
+            "incorrect_use_of_ternary_operator": (["if", "else"], [r"\s*(if|else)\s*"]),
+            "using_wrong_type_of_loop": (
+                ["for"],
+                [r"for\s*[a-zA-Z0-9_\s]+\sin\s[a-zA-Z0-9_\s()]+:"],
+            ),
+            "using_loop_variable_outside_loop": (
+                ["for"],
+                [r"for\s*[a-zA-Z0-9_\s]+\sin\s[a-zA-Z0-9_\s()]+:"],
+            ),
+            "using_variable_before_assignment": ([], [r"[a-zA-Z]+\s*=\s*[a-zA-Z0-9]+"]),
+            "using_wrong_variable_scope": (
+                ["local", "global", "nonlocal"],
+                [r"(local|global|nonlocal)\s+[a-zA-Z0-9_\s]+"],
+            ),
+            "incorrect_use_of_exception_handling": (
+                ["try", "except"],
+                [r"(try|except)\s*[a-zA-Z0-9_\s:]+"],
+            ),
         }
-        self.injector=LogicInjector(self.errors)
-
-
+        self.injector = LogicInjector(self.errors)
 
         self.severity_mapping = {
-"easy": ["incorrect_comparison_operator", "forgotten_variable_update", "infinite_loop"],
-"medium": ["off_by_one_error", "incorrect_function_call", "incorrect_return_value",  "incorrect_use_of_boolean_operators", "incorrect_use_of_ternary_operator"],
-"hard": ["using_wrong_type_of_loop", "using_loop_variable_outside_loop", "using_variable_before_assignment", "using_wrong_variable_scope", "incorrect_use_of_exception_handling"]
-}
+            "easy": [
+                "incorrect_comparison_operator",
+                "forgotten_variable_update",
+                "infinite_loop",
+            ],
+            "medium": [
+                "off_by_one_error",
+                "incorrect_function_call",
+                "incorrect_return_value",
+                "incorrect_use_of_boolean_operators",
+                "incorrect_use_of_ternary_operator",
+            ],
+            "hard": [
+                "using_wrong_type_of_loop",
+                "using_loop_variable_outside_loop",
+                "using_variable_before_assignment",
+                "using_wrong_variable_scope",
+                "incorrect_use_of_exception_handling",
+            ],
+        }
 
     def count_injectables(self, script, error_types=None):
         error_counts = {}
@@ -77,8 +114,6 @@ class LogicBug:
                 count += len(re.findall(pattern[0], script))
             error_counts[error_type] = count
         return error_counts
-
-
 
     def inject(self, script, severity=None, error_type=None, num_errors=1):
         if severity:
@@ -93,7 +128,7 @@ class LogicBug:
             raise ValueError("Either severity or error_type must be specified")
         # print(self.errors.items())
         # count the number of instances of each error type in the script
-        error_counts = self.count_injectables(script,error_types=error_list)
+        error_counts = self.count_injectables(script, error_types=error_list)
         # check if there are enough instances of the error type to inject the errors
         if sum(error_counts.values()) >= num_errors:
             modified_script = script
@@ -112,25 +147,32 @@ class LogicBug:
                 # print(error_counts[error_list[0]])
                 # print(error_counts[random_error])
                 if error_counts[random_error] > 0:
-                    modified_script = self.injector.inject(modified_script, error_type=random_error)
+                    modified_script = self.injector.inject(
+                        modified_script, error_type=random_error
+                    )
                     errors_injected += 1
                     error_counts[random_error] -= 1
                 counter += 1
             return modified_script, errors_injected, counter
         else:
-            raise ValueError("Not enough instances of the required error type in the script")
+            raise ValueError(
+                "Not enough instances of the required error type in the script"
+            )
+
 
 import random
 import re
 
+
 def incorrect_comparison_operator(script, errors_dict):
     # Choose a random comparison operator in the script (e.g., "==", ">=", "<=") and replace it with a different comparison operator.
-    comparison_operators, comparison_regex = errors_dict["incorrect_comparison_operator"]
+    comparison_operators, comparison_regex = errors_dict[
+        "incorrect_comparison_operator"
+    ]
     curr_op = random.choice(comparison_operators)
     comparison_operators.remove(curr_op)
     new_op = random.choice(comparison_operators)
     return script.replace(curr_op, new_op, 1)
-
 
 
 def forgetting_to_update_variable(script, errors_dict):
@@ -146,10 +188,11 @@ def forgetting_to_update_variable(script, errors_dict):
     else:
         raise ValueError("No assignment statements found in script")
 
+
 def infinite_loop(script, errors_dict):
     # Choose a random "while" or "for" loop in the script and remove the loop condition (e.g., "while True:" or "for i in range(10):").
-    while_pattern = errors_dict['infinite_loop'][1][0]
-    for_pattern = errors_dict['infinite_loop'][1][0]
+    while_pattern = errors_dict["infinite_loop"][1][0]
+    for_pattern = errors_dict["infinite_loop"][1][0]
     while_loops = re.findall(while_pattern, script)
     for_loops = re.findall(for_pattern, script)
     if while_loops:
@@ -162,10 +205,12 @@ def infinite_loop(script, errors_dict):
         return script.replace(loop, modified_loop, 1)
     else:
         raise ValueError("No while or for loops found in script")
+
+
 def off_by_one_error(script, errors_dict):
     # Choose a random list index or slice in the script (e.g., "my_list[3]") and add or subtract 1 from the index or slice (e.g., "my_list[4]" or "my_list[2:4]").
     # Find all instances of list indexes or slices in the script
-    index_pattern = errors_dict['off_by_one_error'][1][0]
+    index_pattern = errors_dict["off_by_one_error"][1][0]
     indexes = re.findall(index_pattern, script)
     if indexes:
         # Choose a random list index and add or subtract 1
@@ -178,7 +223,7 @@ def off_by_one_error(script, errors_dict):
         script = script.replace(index, modified_index, 1)
     else:
         # Choose a random list slice and add or subtract 1 from the start or end index
-        slice_pattern = errors_dict['off_by_one_error'][1][0]
+        slice_pattern = errors_dict["off_by_one_error"][1][0]
         slices = re.findall(slice_pattern, script)
         slice_ = random.choice(slices)
         slice_start, slice_end = slice_[1:-1].split(":")
@@ -197,9 +242,10 @@ def off_by_one_error(script, errors_dict):
         script = script.replace(slice_, modified_slice, 1)
     return script
 
+
 def incorrect_function_call(script, errors_dict):
     # Choose a random function call in the script (e.g., "my_function()") and change the number or order of the arguments (e.g., "my_function(5, True)").
-    function_pattern = errors_dict['incorrect_function_call'][1][0]
+    function_pattern = errors_dict["incorrect_function_call"][1][0]
     functions = re.findall(function_pattern, script)
     if functions:
         # Choose a random function and modify its arguments
@@ -218,29 +264,39 @@ def incorrect_function_call(script, errors_dict):
             for _ in range(num_changes):
                 if len(curr_args) == 0:
                     # Add a random argument
-                    curr_args.append(random.choice(["True", "False", "5", "10", "\"hello\""]))
+                    curr_args.append(
+                        random.choice(["True", "False", "5", "10", '"hello"'])
+                    )
                 else:
                     # Remove a random argument or add a random argument
                     if random.random() < 0.5:
                         curr_args.pop(random.randint(0, len(curr_args) - 1))
                     else:
-                        curr_args.append(random.choice(["True", "False", "5", "10", "\"hello\""]))
+                        curr_args.append(
+                            random.choice(["True", "False", "5", "10", '"hello"'])
+                        )
             # Rebuild the modified function call with the modified argument list
             modified_function = f"{function_name}({', '.join(curr_args)})"
             script = script.replace(function, modified_function, 1)
         else:
             # Add a random number of arguments to the function call
             num_args = random.randint(1, 3)
-            new_args = ", ".join([random.choice(["True", "False", "5", "10", "\"hello\""]) for _ in range(num_args)])
+            new_args = ", ".join(
+                [
+                    random.choice(["True", "False", "5", "10", '"hello"'])
+                    for _ in range(num_args)
+                ]
+            )
             modified_function = f"{function_name}({new_args})"
             script = script.replace(function, modified_function, 1)
     else:
         raise ValueError("No function calls found in script")
     return script
 
+
 def incorrect_return_value(script, errors_dict):
     # Choose a random return statement in the script (e.g., "return x + y") and replace the return value with a different value (e.g., "return x - y").
-    return_pattern = errors_dict['incorrect_return_value'][1][0]
+    return_pattern = errors_dict["incorrect_return_value"][1][0]
     returns = re.findall(return_pattern, script)
     if returns:
         return_stmt = random.choice(returns)
@@ -254,6 +310,7 @@ def incorrect_return_value(script, errors_dict):
     else:
         raise ValueError("No return statements found in script")
 
+
 # def incorrect_boolean_operator(script, errors_dict):
 #     # Choose a random boolean operator in the script (e.g., "and", "or") and replace it with the other boolean operator.
 #     boolean_operators = errors_dict['incorrect_boolean_operator'][0]
@@ -266,10 +323,11 @@ def incorrect_return_value(script, errors_dict):
 #         return script.replace(curr_op, new_op, 1)
 #     else:
 #         raise ValueError("No boolean operators found in script")
-        
+
+
 def incorrect_use_of_ternary_operator(script, errors_dict):
     # Choose a random "if" or "else" in the script and replace it with the other keyword (e.g., "if" becomes "else" or vice versa).
-    if_pattern = errors_dict['incorrect_use_of_ternary_operator'][1][0]
+    if_pattern = errors_dict["incorrect_use_of_ternary_operator"][1][0]
     ifs = re.findall(if_pattern, script)
     if ifs:
         if_ = random.choice(ifs)
@@ -280,9 +338,11 @@ def incorrect_use_of_ternary_operator(script, errors_dict):
         return script.replace(if_, modified_if, 1)
     else:
         raise ValueError("No if or else statements found in script")
+
+
 def using_wrong_type_of_loop(script, errors_dict):
     # Choose a random "for" loop in the script and change the loop variable type from iterating over a list to iterating over a range or vice versa (e.g., "for i in range(10):" or "for i in my_list:").
-    for_pattern = errors_dict['using_wrong_type_of_loop'][1][0]
+    for_pattern = errors_dict["using_wrong_type_of_loop"][1][0]
     for_loops = re.findall(for_pattern, script)
     if for_loops:
         loop = random.choice(for_loops)
@@ -303,9 +363,10 @@ def using_wrong_type_of_loop(script, errors_dict):
     else:
         raise ValueError("No for loops found in script")
 
+
 def using_loop_variable_outside_loop(script, errors_dict):
     # Choose a random "for" loop in the script and use the loop variable outside of the loop.
-    for_pattern = errors_dict['using_loop_variable_outside_loop'][1][0]
+    for_pattern = errors_dict["using_loop_variable_outside_loop"][1][0]
     for_loops = re.findall(for_pattern, script)
     if for_loops:
         loop = random.choice(for_loops)
@@ -317,10 +378,13 @@ def using_loop_variable_outside_loop(script, errors_dict):
     else:
         raise ValueError("No for loops found in script")
 
+
 def using_variable_before_assignment(script, errors_dict):
     # Choose a random variable in the script and use it before it is assigned a value.
     # Find all instances of assignment statements in the script
-    assignment_operators, assignment_regex = errors_dict["using_variable_before_assignment"]
+    assignment_operators, assignment_regex = errors_dict[
+        "using_variable_before_assignment"
+    ]
     assignment_pattern = assignment_regex[0]
     assignments = re.findall(assignment_pattern, script)
     if assignments:
@@ -333,10 +397,11 @@ def using_variable_before_assignment(script, errors_dict):
     else:
         raise ValueError("No assignment statements found in script")
 
+
 def using_wrong_variable_scope(script, errors_dict):
     # Choose a random variable in the script and change its scope (e.g., "global", "nonlocal", "local").
     # Find all instances of assignment statements in the script
-    assignment_pattern, _ = errors_dict['using_wrong_variable_scope']
+    assignment_pattern, _ = errors_dict["using_wrong_variable_scope"]
     assignments = re.findall(assignment_pattern, script)
     if assignments:
         # Choose a random assignment statement and change the scope of the left-hand side variable
@@ -348,16 +413,19 @@ def using_wrong_variable_scope(script, errors_dict):
         return script
     else:
         raise ValueError("No assignment statements found in script")
+
+
 def incorrect_use_of_exception_handling(script, errors_dict):
-    # Choose a random "try" or "except" block in the script and remove it or change the exception type.
+    # Choose a random "try" or "except" block in the script and remove it or
+    # change the exception type.
     # Find all instances of "try" or "except" blocks in the script
-    try_pattern = errors_dict['incorrect_use_of_exception_handling'][1][0]
-    except_pattern = errors_dict['incorrect_use_of_exception_handling'][1][0]
-    trys = re.findall(try_pattern, script)
+    try_pattern = errors_dict["incorrect_use_of_exception_handling"][1][0]
+    except_pattern = errors_dict["incorrect_use_of_exception_handling"][1][0]
+    tries = re.findall(try_pattern, script)
     excepts = re.findall(except_pattern, script)
-    if trys:
+    if tries:
         # Choose a random "try" block and remove it
-        block = random.choice(trys)
+        block = random.choice(tries)
         script = script.replace(block, "", 1)
     elif excepts:
         # Choose a random "except" block and change the exception type
@@ -372,8 +440,10 @@ def incorrect_use_of_exception_handling(script, errors_dict):
     else:
         raise ValueError("No try or except blocks found in script")
 
+
 # def incorrect_use_of_builtin_function(script, errors_dict):
-#     # Choose a random built-in function in the script and change the name of the function or the number or order of the arguments.
+#     # Choose a random built-in function in the script and change the name of
+# the function or the number or order of the arguments.
 #     # Find all instances of built-in functions in the script
 #     func_pattern = errors_dict['incorrect_use_of_builtin_function'][1][0]
 #     funcs = re.findall(func_pattern, script)
@@ -405,6 +475,3 @@ def incorrect_use_of_exception_handling(script, errors_dict):
 #             modified_func = f"{func_name}({modified_args})"
 #         script = script.replace(func, modified_func, 1)
 #     return script
-
-
-

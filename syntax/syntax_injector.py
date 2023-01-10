@@ -2,7 +2,7 @@ import random
 
 
 class SyntaxInjector:
-        
+
     def inject(script, characters,error_type):
         if error_type == "missing_quote" or error_type == "missing_bracket" or error_type == "missing_brace" or error_type == "missing_parenthesis":
             # remove a random instance of the character from the script
@@ -53,7 +53,7 @@ class SyntaxBug:
             "misplaced_bracket": ["[", "]"],
             "misplaced_brace": ["{", "}"],
             "misplaced_parenthesis": ["(", ")"],
-        }   
+        }
         self.severity_mapping = {
     "easy": ["typo_quote", "typo_bracket", "typo_brace", "typo_parenthesis"],
     "medium": ["missing_quote", "missing_bracket", "missing_brace", "missing_parenthesis"] + ["typo_quote", "typo_bracket", "typo_brace", "typo_parenthesis"],
@@ -62,9 +62,9 @@ class SyntaxBug:
     def inject(self, script, severity, num_errors):
         if severity not in self.severity_mapping:
             raise ValueError("Invalid severity level")
-            
+
         error_list = self.severity_mapping[severity]
-        
+
         # count the number of instances of each character in the script
         char_counts = {char: script.count(char) for error_type in error_list for char in self.errors[error_type][0]}
         # check if there are enough instances of the character to inject the errors
@@ -76,7 +76,7 @@ class SyntaxBug:
                 # choose a random error from the selected list
                 error_type = random.choice(error_list)
                 characters= self.errors[error_type]
-                
+
                 # check if there are enough instances of the character to inject the error
                 char_counts = {char: modified_script.count(char) for error_type in error_list for char in self.errors[error_type][0]}
                 if sum(char_counts.values()) >= num_errors - errors_injected :
@@ -88,4 +88,3 @@ class SyntaxBug:
             return modified_script, errors_injected , counter
         else:
             raise ValueError("Not enough instances of the required characters in the script")
-
