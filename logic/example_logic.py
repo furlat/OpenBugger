@@ -1,13 +1,15 @@
 import inspect
 import random
+
 from logic.logic_injector import LogicBug
+
 # Simple example script
 
 def simple_script():
     # Choose two random integers
     num1 = random.randint(0, 10)
     num2 = random.randint(0, 10)
-    
+
     # Compare the two numbers and print a message based on their relation
     if num1 > num2:
         print("num1 is greater than num2")
@@ -20,7 +22,7 @@ def simple_script():
 def medium_script():
     # Choose a random integer and assign it to a variable
     num = random.randint(0, 10)
-    
+
     # Use a loop to print all numbers from 0 to the chosen integer
     for i in range(num):
         print(i)
@@ -29,7 +31,7 @@ def medium_script():
 def hard_script():
     # Choose a random integer and assign it to a variable
     num = random.randint(0, 10)
-    
+
     # Use a loop to print the square of all numbers from 0 to the chosen integer
     for i in range(num):
         print(i**2)

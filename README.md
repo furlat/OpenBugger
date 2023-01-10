@@ -29,10 +29,10 @@ def greet(name):
 
 greet("Bob")
 """
- 
+
 print(simple_script)
 ```
-The simple script can be modified using the "easy" injection method because it only contains simple syntax and does not have any nested code blocks. 
+The simple script can be modified using the "easy" injection method because it only contains simple syntax and does not have any nested code blocks.
 This means that there are fewer characters (e.g. quotes, brackets, braces, parenthesis) that could be the target of syntax errors,
  and the "easy" injection method, which only injects errors that involve replacing or removing a single character, is sufficient to modify the script.
 ```
@@ -53,7 +53,7 @@ from logic.logic_injector import LogicBug
 def medium_script():
     # Choose a random integer and assign it to a variable
     num = random.randint(0, 10)
-    
+
     # Use a loop to print all numbers from 0 to the chosen integer
     for i in range(num):
         print(i)
@@ -67,7 +67,7 @@ print("Medium",medium_script_str)
 modified_medium_script, error, counter = logic_bug.inject(medium_script_str,"medium",num_errors=3)
 ```
 
-For more examples see syntax/example_syntax.py and logic/example_logic.py 
+For more examples see syntax/example_syntax.py and logic/example_logic.py
 
 # Done:
 Syntax errors: These are mistakes in the structure of the code that prevent it from being parsed by the interpreter. Examples include missing parentheses, incorrect indentation, and mismatched quotation marks.
@@ -95,6 +95,3 @@ OpenBugger is licensed under the
 
 Apache License 2.0
 A permissive license whose main conditions require preservation of copyright and license notices. Contributors provide an express grant of patent rights. Licensed works, modifications, and larger works may be distributed under different terms and without source code.
-
-
-
