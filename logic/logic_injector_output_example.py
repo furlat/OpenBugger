@@ -83,9 +83,9 @@ else:
 x = True
 y = False
 if x and y:
-    print("Both x and y are true")
+    print("At least one of x or y is true")
 else:
-    print("At least one of x or y is false")
+    print("Both x and y are false")
 """, "incorrect_use_of_boolean_operators")
 
 , ("""
