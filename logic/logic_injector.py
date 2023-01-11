@@ -94,6 +94,7 @@ class LogicBug:
         # print(self.errors.items())
         # count the number of instances of each error type in the script
         error_counts = self.count_injectables(script,error_types=error_list)
+        print("error_counts",error_counts)
         # check if there are enough instances of the error type to inject the errors
         if sum(error_counts.values()) >= num_errors:
             modified_script = script
@@ -101,16 +102,9 @@ class LogicBug:
             counter = 0
             while errors_injected < num_errors and counter < 100 * num_errors:
                 # choose a random error from the selected list
+                
                 random_error = random.choice(error_list)
-                # print(random_error in error_list)
-                # print(random_error in error_counts.keys())
-                # # check if there are enough instances of the error type to inject the error
-                # print(error_list)
-                # print(random_error,type(random_error))
-                # print(error_list[0],type(error_list[0]))
-                # print(error_counts)
-                # print(error_counts[error_list[0]])
-                # print(error_counts[random_error])
+   
                 if error_counts[random_error] > 0:
                     modified_script = self.injector.inject(modified_script, error_type=random_error)
                     errors_injected += 1
@@ -203,9 +197,7 @@ def incorrect_function_call(script, errors_dict):
     functions = re.findall(function_pattern, script)
     if functions:
         # Choose a random function and modify its arguments
-        print(functions)
         function = random.choice(functions)
-        print(function)
         function_name = function.split("(")[0]
         args = function.split("(")[1]
         if args[-1] == ")":
@@ -320,7 +312,7 @@ def using_loop_variable_outside_loop(script, errors_dict):
 def using_variable_before_assignment(script, errors_dict):
     # Choose a random variable in the script and use it before it is assigned a value.
     # Find all instances of assignment statements in the script
-    assignment_operators, assignment_regex = errors_dict["using_variable_before_assignment"]
+    assignment_regex = errors_dict["using_variable_before_assignment"][1][0]
     assignment_pattern = assignment_regex[0]
     assignments = re.findall(assignment_pattern, script)
     if assignments:
@@ -336,16 +328,17 @@ def using_variable_before_assignment(script, errors_dict):
 def using_wrong_variable_scope(script, errors_dict):
     # Choose a random variable in the script and change its scope (e.g., "global", "nonlocal", "local").
     # Find all instances of assignment statements in the script
-    assignment_pattern, _ = errors_dict['using_wrong_variable_scope']
-    assignments = re.findall(assignment_pattern, script)
+    assignment_regex = errors_dict['using_wrong_variable_scope'][1][0]
+    assignments = re.findall(assignment_regex, script)
     if assignments:
         # Choose a random assignment statement and change the scope of the left-hand side variable
         assignment = random.choice(assignments)
-        var_name = assignment.split("=")[0].strip()
-        scope = random.choice(["global", "nonlocal", "local"])
-        modified_assignment = f"{scope} {var_name} = {assignment.split('=')[1]}"
-        script = script.replace(assignment, modified_assignment, 1)
-        return script
+        scopes = ["global", "nonlocal", "local","\n"]
+        #remove the current scope from the list of scopes
+        scopes = [x for x in scopes if x not in assignment]
+        scope = random.choice(scopes)
+        modified_script = script.replace(str(assignment),scope)
+        return modified_script
     else:
         raise ValueError("No assignment statements found in script")
 def incorrect_use_of_exception_handling(script, errors_dict):
