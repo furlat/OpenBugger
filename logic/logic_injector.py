@@ -136,9 +136,9 @@ class LogicBug:
             counter = 0
             while errors_injected < num_errors and counter < 100 * num_errors:
                 # choose a random error from the selected list
-                
+
                 random_error = random.choice(error_list)
-   
+
                 if error_counts[random_error] > 0:
                     modified_script = self.injector.inject(
                         modified_script, error_type=random_error
