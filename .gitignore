@@ -4,3 +4,4 @@ OpenBugger.egg-info/PKG-INFO
 OpenBugger.egg-info/SOURCES.txt
 OpenBugger.egg-info/top_level.txt
 *.pyc
+node_modules

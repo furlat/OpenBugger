@@ -36,5 +36,10 @@ repos:
     rev: v2.2.2
     hooks:
       - id: codespell
+        args: [--skip="data/**""]
+        exclude: >
+          (?x)^(
+              .*\.json|.*\.ipynb
+          )$
         additional_dependencies:
           - tomli

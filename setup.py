@@ -1,3 +1,4 @@
-import setuptools
+from setuptools import setup
 
-setuptools.setup(name='OpenBugger', py_modules=[])
+if __name__ == "__main__":
+    setup()
