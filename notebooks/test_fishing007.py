@@ -3,9 +3,11 @@ def test():
     one two three"""
     return "test"
 
+
 def two():
-    """ Returns 2 """
+    """Returns 2"""
     return 2
+
 
 def test2():
     """

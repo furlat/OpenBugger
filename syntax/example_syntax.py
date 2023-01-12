@@ -1,4 +1,4 @@
-from syntax.syntax_injector import SyntaxBug, SyntaxInjector
+from syntax.syntax_injector import SyntaxBug
 
 syntax_bug = SyntaxBug()
 
@@ -22,9 +22,9 @@ print(simple_script)
 # Inject easy syntax errors into the simple script
 
 modified_simple_script, errors, counter = syntax_bug.inject(simple_script, "easy", 1)
-print("Modified version Easy", errors, counter)
+print(("Modified version Easy", errors, counter))
 print(modified_simple_script)
-print("are they the same?", simple_script == modified_simple_script)
+print(("are they the same?", simple_script == modified_simple_script))
 # Medium script
 medium_script = """
 def greet(name):
@@ -47,9 +47,9 @@ greet_all(["Bob", "Alice", "Eve"])
 print(medium_script)
 # Inject medium syntax errors into the medium script
 modified_medium_script, errors, counter = syntax_bug.inject(medium_script, "medium", 3)
-print("Modified version Medium", errors, counter)
+print(("Modified version Medium", errors, counter))
 print(modified_medium_script)
-print("are they the same?", medium_script == modified_medium_script)
+print(("are they the same?", medium_script == modified_medium_script))
 # Hard script
 hard_script = """
 class Greeting:
@@ -67,6 +67,6 @@ greeting.greet("Bob")
 print(hard_script)
 # Inject hard syntax errors into the hard script
 modified_hard_script, errors, counter = syntax_bug.inject(hard_script, "hard", 3)
-print("Modified version Hard", errors, counter)
+print(("Modified version Hard", errors, counter))
 print(modified_hard_script)
-print("are they the same?", hard_script == modified_hard_script)
+print(("are they the same?", hard_script == modified_hard_script))

@@ -1,9 +1,4 @@
-#!/usr/bin/env python3
-
-import argparse
 import ast
-import json as json
-import sys
 
 
 def read_file_to_string(filename):
@@ -11,59 +6,59 @@ def read_file_to_string(filename):
         return fd.read()
 
 
-def main(filename):
-    tree = ast.parse(read_file_to_string(filename), filename)
+def python2ast(stream, filename="main.py"):  # noqa:
+    tree = ast.parse(stream, filename)
 
-    json_tree = []
+    node = []
 
     def gen_identifier(identifier, node_type="identifier"):
-        pos = len(json_tree)
+        pos = len(node)
         json_node = {}
-        json_tree.append(json_node)
+        node.append(json_node)
         json_node["type"] = node_type
         json_node["value"] = identifier
         return pos
 
-    def traverse_list(l, node_type="list"):
-        pos = len(json_tree)
+    def traverse_list(nodelist, node_type="list"):
+        pos = len(node)
         json_node = {}
-        json_tree.append(json_node)
+        node.append(json_node)
         json_node["type"] = node_type
         children = []
-        for item in l:
+        for item in nodelist:
             children.append(traverse(item))
         if len(children) != 0:
             json_node["children"] = children
         return pos
 
     def traverse(node):
-        pos = len(json_tree)
+        pos = len(node)
         json_node = {}
-        json_tree.append(json_node)
+        node.append(json_node)
         json_node["type"] = type(node).__name__
         children = []
         if isinstance(node, ast.Name):
             json_node["value"] = node.id
         elif isinstance(node, ast.Num):
-            json_node["value"] = unicode(node.n)
+            json_node["value"] = str(node.n)
         elif isinstance(node, ast.Str):
             json_node["value"] = node.s.decode("utf-8")
         elif isinstance(node, ast.alias):
-            json_node["value"] = unicode(node.name)
+            json_node["value"] = str(node.name)
             if node.asname:
                 children.append(gen_identifier(node.asname))
         elif isinstance(node, ast.FunctionDef):
-            json_node["value"] = unicode(node.name)
+            json_node["value"] = str(node.name)
         elif isinstance(node, ast.ClassDef):
-            json_node["value"] = unicode(node.name)
+            json_node["value"] = str(node.name)
         elif isinstance(node, ast.ImportFrom):
             if node.module:
-                json_node["value"] = unicode(node.module)
+                json_node["value"] = str(node.module)
         elif isinstance(node, ast.Global):
             for n in node.names:
                 children.append(gen_identifier(n))
         elif isinstance(node, ast.keyword):
-            json_node["value"] = unicode(node.arg)
+            json_node["value"] = str(node.arg)
 
         # Process children.
         if isinstance(node, ast.For):
@@ -133,12 +128,4 @@ def main(filename):
             json_node["children"] = children
         return pos
 
-    traverse(tree)
-    return json.dumps(json_tree, separators=(",", ":"), ensure_ascii=False)
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("filename", help="the python file to parse as an ast")
-    args = parser.parse_args()
-    main(args.filename)
+    return traverse(tree)
