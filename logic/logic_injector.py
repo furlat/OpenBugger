@@ -6,7 +6,7 @@ class LogicInjector:
     def __init__(self, errors):
         self.errors = errors
 
-    def inject(self, script, error_type):
+    def inject(self, script, error_type):  # noqa:
         if error_type == "incorrect_comparison_operator":
             return incorrect_comparison_operator(script, self.errors)
         elif error_type == "forgetting_to_update_variable":
@@ -107,8 +107,8 @@ class LogicBug:
     def count_injectables(self, script, error_types=None):
         error_counts = {}
         if error_types is None:
-            error_types = self.errors.keys()
-        for error_type, (chars, pattern) in self.errors.items():
+            error_types = list(self.errors.keys())
+        for error_type, (chars, pattern) in list(self.errors.items()):
             count = 0
             if error_type in error_types:
                 count += len(re.findall(pattern[0], script))
@@ -136,9 +136,9 @@ class LogicBug:
             counter = 0
             while errors_injected < num_errors and counter < 100 * num_errors:
                 # choose a random error from the selected list
-                
+
                 random_error = random.choice(error_list)
-   
+
                 if error_counts[random_error] > 0:
                     modified_script = self.injector.inject(
                         modified_script, error_type=random_error
@@ -151,10 +151,6 @@ class LogicBug:
             raise ValueError(
                 "Not enough instances of the required error type in the script"
             )
-
-
-import random
-import re
 
 
 def incorrect_comparison_operator(script, errors_dict):
@@ -390,16 +386,16 @@ def using_variable_before_assignment(script, errors_dict):
 def using_wrong_variable_scope(script, errors_dict):
     # Choose a random variable in the script and change its scope (e.g., "global", "nonlocal", "local").
     # Find all instances of assignment statements in the script
-    assignment_regex = errors_dict['using_wrong_variable_scope'][1][0]
+    assignment_regex = errors_dict["using_wrong_variable_scope"][1][0]
     assignments = re.findall(assignment_regex, script)
     if assignments:
         # Choose a random assignment statement and change the scope of the left-hand side variable
         assignment = random.choice(assignments)
-        scopes = ["global", "nonlocal", "local","\n"]
-        #remove the current scope from the list of scopes
+        scopes = ["global", "nonlocal", "local", "\n"]
+        # remove the current scope from the list of scopes
         scopes = [x for x in scopes if x not in assignment]
         scope = random.choice(scopes)
-        modified_script = script.replace(str(assignment),scope)
+        modified_script = script.replace(str(assignment), scope)
         return modified_script
     else:
         raise ValueError("No assignment statements found in script")
