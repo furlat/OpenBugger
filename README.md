@@ -9,10 +9,11 @@ OpenBugger is a tool for injecting various types of bugs into Python scripts in 
 ## ONGOING LIBCST REFACTOR
 We are migrating to LibCST!!!
 
-For a self-contained notebook with invertible bugs implemented in LibCST see 
+For a self-contained notebook with invertible bugs implemented in LibCST see:
 
 https://github.com/furlat/OpenBugger/blob/main/notebooks/openbugger.ipynb 
-For a LangChain codefactory to automatically produce new Trasnformers using a LLM see
+
+For a LangChain codefactory to automatically produce new Trasnformers using a LLM see:
 
 https://github.com/furlat/OpenBugger/blob/main/notebooks/LangCST.ipynb
 
