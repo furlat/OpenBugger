@@ -7,7 +7,14 @@ OpenBugger
 OpenBugger is a tool for injecting various types of bugs into Python scripts in order to test the robustness of your code and practice debugging skills. It comes with a library of bug injection methods for different severity levels and error types, such as syntax errors, logic errors, and runtime errors.
 
 ## ONGOING LIBCST REFACTOR
-We are migrating to LibCST see https://github.com/furlat/OpenBugger/blob/main/notebooks/openbugger.ipynb for a self-contained notebook with invertible bugs implemented in LibCST
+We are migrating to LibCST!!!
+
+For a self-contained notebook with invertible bugs implemented in LibCST see 
+
+https://github.com/furlat/OpenBugger/blob/main/notebooks/openbugger.ipynb 
+For a LangChain codefactory to automatically produce new Trasnformers using a LLM see
+
+https://github.com/furlat/OpenBugger/blob/main/notebooks/LangCST.ipynb
 
 ## Installation
 
