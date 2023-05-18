@@ -135,35 +135,3 @@ class InverseTransformer(ContextAwareTransformer):
             return self.invert_node(original_node,updated_node)
 
 
-class TestTransformer(ContextAwareTransformer):
-        """ a test transformer that checks if a node has been modified by another transformer and if not pretends to modify it"""
-        METADATA_DEPENDENCIES = (PositionProvider, )
-        def __init__(
-            self,
-            context: CodemodContext):
-            super().__init__(context)
-            self.id = f"{self.__class__.__name__}-{uuid.uuid4().hex[:4]}"
-        def transform_module_impl(self, tree: cst.Module) -> cst.Module:
-            return tree.visit(self)
-        def mutate(self, tree: cst.Module,reverse: bool = False) -> cst.Module:
-            return self.transform_module(tree)
-        def taint_node(self, original_node:cst.CSTNode, updated_node: cst.CSTNode) ->   cst.CSTNode:
-            meta_pos = self.get_metadata(PositionProvider, original_node)
-            already_modified = is_modified(original_node,meta_pos,self.context)
-            if not already_modified:
-                # print("adding to scratch",meta_pos.start, meta_pos.end)
-                updated_node = original_node
-                save_modified(self.context,meta_pos,original_node,updated_node,self.id)
-            return updated_node      
-        def leave_ComparisonTarget(self, original_node:cst.ComparisonTarget, updated_node: cst.ComparisonTarget) -> None:
-            return self.taint_node(original_node,updated_node)
-        def leave_Assign(self, original_node:cst.Assign, updated_node: cst.Assign):
-            return self.taint_node(original_node,updated_node)
-        def leave_While(self, original_node:cst.While, updated_node: cst.While):
-            return self.taint_node(original_node,updated_node)
-        def leave_Comparison(self, original_node:cst.Comparison, updated_node: cst.Comparison):
-            return self.taint_node(original_node,updated_node)
-        def leave_Index(self, original_node:cst.Index, updated_node: cst.Index):
-            return self.taint_node(original_node,updated_node)
-        def leave_Slice(self, original_node:cst.Slice, updated_node: cst.Slice):
-            return self.taint_node(original_node,updated_node)
