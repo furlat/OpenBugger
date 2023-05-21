@@ -169,3 +169,5 @@ class InverseTransformer(ContextAwareTransformer):
             return self.invert_node(original_node,updated_node)
         def leave_Dict(self, original_node:cst.Dict, updated_node: cst.Dict):
             return self.invert_node(original_node,updated_node)
+        def leave_FunctionDef(self, original_node:cst.FunctionDef, updated_node: cst.FunctionDef):
+            return self.invert_node(original_node,updated_node)
