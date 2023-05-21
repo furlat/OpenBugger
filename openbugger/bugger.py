@@ -191,6 +191,9 @@ class InverseTransformer(ContextAwareTransformer):
                 old_node= self.context.scratch[meta_pos.start]["original_node"]
                 self.context.scratch[meta_pos.start]["debugged_node"]=old_node
                 updated_node=old_node
+                # print("reverting to old node",meta_pos.start, meta_pos.end)
+                # print("current node",original_node)
+                # print("reverting to node",updated_node)
             return updated_node   
         def leave_ComparisonTarget(self, original_node:cst.ComparisonTarget, updated_node: cst.ComparisonTarget) -> None:
             return self.invert_node(original_node,updated_node)
@@ -221,5 +224,7 @@ class InverseTransformer(ContextAwareTransformer):
         def leave_SimpleString(self, original_node:cst.SimpleString, updated_node: cst.SimpleString):
             return self.invert_node(original_node,updated_node)
         def leave_Float(self, original_node:cst.Float, updated_node: cst.Float):
+            return self.invert_node(original_node,updated_node)
+        def leave_Attribute(self, original_node:cst.Attribute, updated_node: cst.Attribute):
             return self.invert_node(original_node,updated_node)
         
