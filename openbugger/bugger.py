@@ -10,6 +10,50 @@ import uuid
 
 from openbugger.context import is_modified, save_modified, PositionContextUpdater
 
+from dataclasses import fields
+from typing import Sequence
+
+from libcst._nodes.base import CSTNode
+
+def deep_equals_with_print(a: object, b: object) -> bool:
+    if isinstance(a, CSTNode) and isinstance(b, CSTNode):
+        return deep_equals_cst_node_with_print(a, b)
+    elif (
+        isinstance(a, Sequence)
+        and not isinstance(a, (str, bytes))
+        and isinstance(b, Sequence)
+        and not isinstance(b, (str, bytes))
+    ):
+        return _deep_equals_sequence(a, b)
+    else:
+        return a == b
+
+
+def _deep_equals_sequence(a: Sequence[object], b: Sequence[object]) -> bool:
+    if a is b:  # short-circuit
+        return True
+    if len(a) != len(b):
+        return False
+    return all(deep_equals_with_print(a_el, b_el) for (a_el, b_el) in zip(a, b))
+
+
+def deep_equals_cst_node_with_print(a: "CSTNode", b: "CSTNode") -> bool:
+    if type(a) is not type(b):
+        print(f"Type mismatch: {type(a)} != {type(b)}")
+        print(f"Node A: {a}")
+        print(f"Node B: {b}")
+        return False
+    if a is b:  # short-circuit
+        return True
+    # Ignore metadata and other hidden fields
+    for field in (f for f in fields(a) if f.compare is True):
+        a_value = getattr(a, field.name)
+        b_value = getattr(b, field.name)
+        if not deep_equals_with_print(a_value, b_value):  # Changed this line
+            print(f"Value mismatch in field '{field.name}': {a_value} != {b_value}")  # Added this line for debugging
+            return False
+    return True
+
 
 class Bugger(Codemod):
     """ A CodeMod that allows to chain multiple Transformers sharing the same context and reverse them"""  
@@ -42,7 +86,7 @@ class Bugger(Codemod):
                 print("clean_code")
                 print(self.clean.code)
                 print("Checking if the debugged code is equal to the original code..")
-                diff = self.original.deep_equals(self.clean)
+                diff = deep_equals_with_print(self.original,self.clean)
                 print("The result of deep_equals between the concrete syntax tree of the original and debugged code is {}".format(diff))
            
     def print_bugs(self):
