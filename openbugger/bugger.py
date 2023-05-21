@@ -33,6 +33,7 @@ def _deep_equals_sequence(a: Sequence[object], b: Sequence[object]) -> bool:
     if a is b:  # short-circuit
         return True
     if len(a) != len(b):
+        print(f"Sequence length mismatch: {len(a)} != {len(b)}")
         return False
     return all(deep_equals_with_print(a_el, b_el) for (a_el, b_el) in zip(a, b))
 
