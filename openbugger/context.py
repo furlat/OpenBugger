@@ -94,44 +94,6 @@ class PositionContextUpdater(ContextAwareTransformer):
     
 
 
-class InverseTransformer(ContextAwareTransformer):
-        """ A transformer that inverts the changes made by other transformers that share the same context"""
-        METADATA_DEPENDENCIES = (PositionProvider, )
-        def __init__(
-            self,
-            context: CodemodContext):
-            super().__init__(context)
-            self.id = None
-       
-        def transform_module_impl(self, tree: cst.Module) -> cst.Module:
-            return tree.visit(self)
-        def debug(self, tree: cst.Module,id) -> cst.Module:
-            self.id = id
-            return self.transform_module(tree)
-        def invert_node(self, original_node:cst.CSTNode, updated_node: cst.CSTNode) ->   cst.CSTNode:
-            meta_pos = self.get_metadata(PositionProvider, original_node)
-            #only updates nodes that are not already in the scratch
-            already_modified  = [x for x in self.context.scratch.values() if meta_pos.start== x["original_position"].start]
-            # if already_modified:
-                # print("already found a node modified by",already_modified[0]["author"])
-                # print("current author is",self.id)
-            if already_modified and already_modified[0]["author"] == self.id:
-                # print("reverting to old node",meta_pos.start, meta_pos.end)
-                old_node= self.context.scratch[meta_pos.start]["original_node"]
-                self.context.scratch[meta_pos.start]["debugged_node"]=old_node
-                updated_node=old_node
-            return updated_node   
-        def leave_ComparisonTarget(self, original_node:cst.ComparisonTarget, updated_node: cst.ComparisonTarget) -> None:
-            return self.invert_node(original_node,updated_node)
-        def leave_Assign(self, original_node:cst.Assign, updated_node: cst.Assign):
-            return self.invert_node(original_node,updated_node)
-        def leave_While(self, original_node:cst.While, updated_node: cst.While):
-            return self.invert_node(original_node,updated_node) 
-        def leave_Comparison(self, original_node:cst.Comparison, updated_node: cst.Comparison):
-            return self.invert_node(original_node,updated_node)        
-        def leave_Index(self, original_node:cst.Index, updated_node: cst.Index):
-            return self.invert_node(original_node,updated_node)
-        def leave_Slice(self, original_node:cst.Slice, updated_node: cst.Slice):
-            return self.invert_node(original_node,updated_node)
+
 
 
