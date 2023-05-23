@@ -26,8 +26,6 @@ class ForgettingToUpdateVariableTransformer(ContextAwareTransformer):
                 save_modified(self.context,meta_pos,original_node,updated_node,self.id)
             return updated_node
         
-
-
 class InfiniteWhileTransformer(ContextAwareTransformer):
     METADATA_DEPENDENCIES = (PositionProvider,)
     def __init__(self, context: CodemodContext):
@@ -47,8 +45,6 @@ class InfiniteWhileTransformer(ContextAwareTransformer):
             )
             save_modified(self.context,meta_pos,original_node,updated_node,self.id)
         return updated_node
-    
-
 
 def gen_OffByKIndexTransformer(k):
     k=int(k)
@@ -87,3 +83,51 @@ def gen_OffByKIndexTransformer(k):
                     save_modified(self.context,meta_pos,original_node,updated_node,self.id)
                 return updated_node
     return OffByKIndexTransformer
+
+class IncorrectExceptionHandlerTransformer(ContextAwareTransformer):
+    METADATA_DEPENDENCIES = (PositionProvider,)
+    def __init__(self, context: CodemodContext):
+        super().__init__(context)
+        self.id = f"{self.__class__.__name__}-{uuid.uuid4().hex[:4]}"
+    def mutate(self, tree: cst.Module, reverse: bool = False) -> cst.Module:
+        return self.transform_module(tree)
+    def leave_ExceptHandler(self, original_node: cst.ExceptHandler, updated_node: cst.ExceptHandler) -> cst.ExceptHandler:
+        meta_pos = self.get_metadata(PositionProvider, original_node)
+        already_modified = is_modified(original_node,meta_pos,self.context)
+        if not already_modified:
+            updated_node = original_node.with_changes(type=None)
+            save_modified(self.context,meta_pos,original_node,updated_node,self.id)
+        return updated_node
+    
+class MissingArgumentTransformer(ContextAwareTransformer):
+    METADATA_DEPENDENCIES = (PositionProvider,)
+    def __init__(self, context: CodemodContext):
+        super().__init__(context)
+        self.id = f"{self.__class__.__name__}-{uuid.uuid4().hex[:4]}"
+    def mutate(self, tree: cst.Module, reverse: bool = False) -> cst.Module:
+        self.reverse = reverse
+        return self.transform_module(tree)
+    def leave_Call(self, original_node: cst.Call, updated_node: cst.Call) -> cst.Call:
+        meta_pos = self.get_metadata(PositionProvider, original_node)
+        already_modified = is_modified(original_node,meta_pos,self.context)
+        if not already_modified and original_node.args:
+            updated_node = original_node.with_changes(args=original_node.args[:-1])
+            save_modified(self.context,meta_pos,original_node,updated_node,self.id)
+        return updated_node
+    
+
+class ReturningEarlyTransformer(ContextAwareTransformer):
+    METADATA_DEPENDENCIES = (PositionProvider,)
+    def __init__(self, context: CodemodContext):
+        super().__init__(context)
+        self.id = f"{self.__class__.__name__}-{uuid.uuid4().hex[:4]}"
+    def mutate(self, tree: cst.Module, reverse: bool = False) -> cst.Module:
+        self.reverse = reverse
+        return self.transform_module(tree)
+    def leave_Return(self, original_node: cst.Return, updated_node: cst.Return) -> cst.Return:
+        meta_pos = self.get_metadata(PositionProvider, original_node)
+        already_modified = is_modified(original_node,meta_pos,self.context)
+        if not already_modified:
+            updated_node = cst.Return(value=None)
+            save_modified(self.context,meta_pos,original_node,updated_node,self.id)
+        return updated_node
