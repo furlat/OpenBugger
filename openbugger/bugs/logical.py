@@ -5,10 +5,16 @@ from libcst.codemod import CodemodContext, ContextAwareTransformer
 from libcst.metadata import PositionProvider
 import libcst as cst
 from openbugger.context import is_modified, save_modified
+from typing import Optional,List, Dict
+import random
 
-def gen_ComparisonTargetTransfomer(op1, op2):
+def gen_ComparisonTargetTransfomer(op1: Optional[str] = None, op2:Optional[str] = None):
     """ A factory function that returns a ComparisonTargetTransformer that replaces all the occurences of op1 with op2"""
-
+    #mapping from string to libcst comparisontarget operator class
+    #if op1 or op2 are None then they will be replaced with a random operator
+    op1= op1 or random.choice(list(str2op.keys()))
+    #sample random op2 different from op1
+    op2 = op2 or random.choice(list(set(str2op.keys()) - set(op1)))
     str2op = dict([
     ('==', Equal),
     ('>=', GreaterThanEqual),

@@ -3,7 +3,7 @@ from libcst.codemod import CodemodContext, ContextAwareTransformer
 from libcst.metadata import PositionProvider
 import libcst as cst
 from openbugger.context import is_modified, save_modified
-
+from typing import Optional,List, Dict
 
 class ForgettingToUpdateVariableTransformer(ContextAwareTransformer):
         METADATA_DEPENDENCIES = (PositionProvider, )
@@ -46,8 +46,8 @@ class InfiniteWhileTransformer(ContextAwareTransformer):
             save_modified(self.context,meta_pos,original_node,updated_node,self.id)
         return updated_node
 
-def gen_OffByKIndexTransformer(k):
-    k=int(k)
+def gen_OffByKIndexTransformer(k: Optional[int] = 1):
+    k=int(k) 
     class OffByKIndexTransformer(ContextAwareTransformer):
             """ Uses the leave_Index method to add k to the index value"""
             METADATA_DEPENDENCIES = (PositionProvider,)
