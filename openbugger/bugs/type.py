@@ -39,7 +39,7 @@ class IncorrectTypeTransformer(ContextAwareTransformer):
                 updated_node = cst.Integer(str(int_value))
                 save_modified(self.context, meta_pos, original_node, updated_node, self.id)
                 return updated_node
-            except ValueError:
+            except:
                 # If the string cannot be converted to an integer, keep it as a string
                 return updated_node
         return updated_node
