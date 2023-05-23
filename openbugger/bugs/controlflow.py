@@ -2,6 +2,7 @@ import uuid
 from libcst.codemod import CodemodContext, ContextAwareTransformer
 from libcst.metadata import PositionProvider
 import libcst as cst
+import libcst.matchers as m
 from openbugger.context import is_modified, save_modified
 from typing import Optional,List, Dict
 
@@ -49,39 +50,74 @@ class InfiniteWhileTransformer(ContextAwareTransformer):
 def gen_OffByKIndexTransformer(k: Optional[int] = 1):
     k=int(k) 
     class OffByKIndexTransformer(ContextAwareTransformer):
-            """ Uses the leave_Index method to add k to the index value"""
-            METADATA_DEPENDENCIES = (PositionProvider,)
-            def __init__(self, context: CodemodContext):
-                super().__init__(context)
-                self.id = f"{self.__class__.__name__}-{uuid.uuid4().hex[:4]}"
-            def mutate(self, tree: cst.Module,) -> cst.Module:
-                    return self.transform_module(tree)
-            def leave_Index(self, original_node: cst.Index, updated_node: cst.Index) -> None:
-                meta_pos = self.get_metadata(PositionProvider, original_node)
-                #only updates nodes that are not already in the scratch
-                already_modified = is_modified(original_node,meta_pos,self.context)
-                if not already_modified:
-                    # print("adding to scratch",meta_pos.start, meta_pos.end)
-                    updated_node = original_node.with_changes(value=original_node.value.with_changes(value=str(int(original_node.value.value)+k)))
-                    save_modified(self.context,meta_pos,original_node,updated_node,self.id)
-                
-                return updated_node    
-            def leave_Slice(self, original_node: cst.Slice, updated_node: cst.Slice) -> None:
-                meta_pos = self.get_metadata(PositionProvider, original_node)
-                #only updates nodes that are not already in the scratch
-                already_modified = is_modified(original_node,meta_pos,self.context)
-                if not already_modified:
-                    # print("adding to scratch",meta_pos.start, meta_pos.end)
-                    lower = original_node.lower.value if original_node.lower is not None else None
-                    upper = original_node.upper.value if original_node.upper is not None else None
-                    step = original_node.step.value if original_node.step is not None else None
-                    if lower is not None:
-                        lower =cst.parse_expression(str(int(lower)+k))
-                    if upper is not None:
-                        upper = cst.parse_expression(str(int(upper)+k))
-                    updated_node = original_node.with_changes(lower=lower, upper=upper, step=step)
-                    save_modified(self.context,meta_pos,original_node,updated_node,self.id)
-                return updated_node
+        METADATA_DEPENDENCIES = (PositionProvider,)
+
+        def __init__(self, context: CodemodContext):
+            super().__init__(context)
+            self.k = k
+            self.id = f"{self.__class__.__name__}-{uuid.uuid4().hex[:4]}"
+
+        def mutate(self, tree: cst.Module,) -> cst.Module:
+            return self.transform_module(tree)
+
+        def leave_Index(self, original_node: cst.Index, updated_node: cst.Index) -> cst.Index:
+            meta_pos = self.get_metadata(PositionProvider, original_node)
+            already_modified = is_modified(original_node, meta_pos, self.context)
+                            
+            if not already_modified:
+                if m.matches(original_node.value, m.Integer()):
+                    # extract the value string from the cst.Integer node
+                    original_value = original_node.value.value
+                    # Convert the value string to an integer, add self.k, and then convert back to a string
+                    updated_value = cst.Integer(str(int(original_value) + self.k))
+                elif m.matches(original_node.value, m.Name()):
+                    updated_value = cst.BinaryOperation(
+                        left=original_node.value.deep_clone(),
+                        operator=cst.Add(),
+                        right=cst.Integer(str(self.k))
+                    )
+                elif m.matches(original_node.value, m.BinaryOperation()):
+                    updated_value = cst.BinaryOperation(
+                        left=original_node.value.left.deep_clone(),
+                        operator=original_node.value.operator,
+                        right=cst.BinaryOperation(
+                            left=original_node.value.right,
+                            operator=cst.Add(),
+                            right=cst.Integer(str(self.k))
+                        )
+                    )
+                else:
+                    updated_value = original_node.value
+                updated_node = updated_node.with_changes(value=updated_value)
+                save_modified(self.context, meta_pos, original_node, updated_node, self.id)
+
+            return updated_node
+
+
+
+
+
+        def leave_Slice(self, original_node: cst.Slice, updated_node: cst.Slice) -> cst.Slice:
+            meta_pos = self.get_metadata(PositionProvider, original_node)
+            already_modified = is_modified(original_node, meta_pos, self.context)
+
+            if not already_modified:
+                lower = original_node.lower
+                upper = original_node.upper
+
+                if m.matches(lower, m.Index(m.Integer())):
+                    lower = cst.Index(cst.Integer(int(lower.value.value) + self.k))
+
+                if m.matches(upper, m.Index(m.Integer())):
+                    upper = cst.Index(cst.Integer(int(upper.value.value) + self.k))
+
+                updated_node = updated_node.with_changes(lower=lower, upper=upper)
+                save_modified(self.context, meta_pos, original_node, updated_node, self.id)
+
+            return updated_node
+
+
+
     return OffByKIndexTransformer
 
 class IncorrectExceptionHandlerTransformer(ContextAwareTransformer):
