@@ -12,9 +12,7 @@ def gen_ComparisonTargetTransfomer(op1: Optional[str] = None, op2:Optional[str] 
     """ A factory function that returns a ComparisonTargetTransformer that replaces all the occurences of op1 with op2"""
     #mapping from string to libcst comparisontarget operator class
     #if op1 or op2 are None then they will be replaced with a random operator
-    op1= op1 or random.choice(list(str2op.keys()))
-    #sample random op2 different from op1
-    op2 = op2 or random.choice(list(set(str2op.keys()) - set(op1)))
+
     str2op = dict([
     ('==', Equal),
     ('>=', GreaterThanEqual),
@@ -30,6 +28,9 @@ def gen_ComparisonTargetTransfomer(op1: Optional[str] = None, op2:Optional[str] 
     ('and', And),
     ('or', Or),
     ('or', Or),])
+    op1= op1 or random.choice(list(str2op.keys()))
+    #sample random op2 different from op1
+    op2 = op2 or random.choice(list(set(str2op.keys()) - set(op1)))
 
     #check if the op1 and op2 are valid they can either be a string or a libcst comparisontarget operator class
     if op1 in str2op.keys():
