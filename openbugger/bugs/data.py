@@ -6,6 +6,14 @@ import libcst as cst
 from openbugger.context import is_modified, save_modified
 from typing import Optional,List, Dict
 
+def to_int(s):
+    try:
+        if s.startswith('0x'):
+            return int(s, 16)
+        else:
+            return int(s)
+    except ValueError:
+        return None
 
 DEFAULT_VALUES = {
     int: [1, 2, 3, 4, 5],
@@ -32,13 +40,13 @@ class IncorrectVariableInitializationTransformer(ContextAwareTransformer):
 
     def leave_Assign(self, original_node: cst.Assign, updated_node: cst.Assign) -> cst.Assign:
         meta_pos = self.get_metadata(PositionProvider, original_node)
-        already_modified = is_modified(original_node,meta_pos,self.context)
+        already_modified = is_modified(original_node, meta_pos, self.context)
         if not already_modified:
             if matchers.matches(updated_node.value, matchers.SimpleString()):
                 old_value = updated_node.value.value
                 old_value_type = str
             elif matchers.matches(updated_node.value, matchers.Integer()):
-                old_value = int(updated_node.value.value)
+                old_value = to_int(updated_node.value.value)
                 old_value_type = int
             elif matchers.matches(updated_node.value, matchers.Float()):
                 old_value = float(updated_node.value.value)
@@ -60,8 +68,9 @@ class IncorrectVariableInitializationTransformer(ContextAwareTransformer):
                 new_value = f'"{new_value}"'
 
             updated_node = original_node.with_changes(value=cst.parse_expression(str(new_value)))
-            save_modified(self.context,meta_pos,original_node,updated_node,self.id)
+            save_modified(self.context, meta_pos, original_node, updated_node, self.id)
         return updated_node
+
     
     def leave_List(self, original_node: cst.List, updated_node: cst.List) -> cst.List:
         meta_pos = self.get_metadata(PositionProvider, original_node)
