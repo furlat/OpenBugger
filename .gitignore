@@ -6,3 +6,4 @@ OpenBugger.egg-info/top_level.txt
 *.pyc
 node_modules
 *.code-workspace
+notebooks/outs/*

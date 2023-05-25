@@ -1,7 +1,7 @@
 from libcst.codemod import CodemodContext, Codemod
 from libcst import  Module
-from typing import List
-
+from typing import List, Optional
+import random
 import libcst as cst
 from libcst.codemod import CodemodContext, ContextAwareTransformer, ContextAwareVisitor
 from libcst.metadata import BatchableMetadataProvider, PositionProvider, CodePosition, CodeRange
@@ -58,12 +58,14 @@ def deep_equals_cst_node_with_print(a: "CSTNode", b: "CSTNode") -> bool:
 
 class Bugger(Codemod):
     """ A CodeMod that allows to chain multiple Transformers sharing the same context and reverse them"""  
-    def __init__(self, transformers: List[ContextAwareTransformer]) -> None:
+    def __init__(self, transformers: List[ContextAwareTransformer], max_bugs: Optional[int] = None) -> None:
         
         self.context = CodemodContext()
         Codemod.__init__(self,self.context)
         self.transformers = [transformer(self.context) for transformer in transformers]
         self.inverse = InverseTransformer(self.context)
+        self.max_bugs = max_bugs
+        self.bug_selector = BugSelectorTransformer(self.context,self.max_bugs) if max_bugs else None
         self.position_updater = PositionContextUpdater(self.context)
         #the context scratchpad has an entry ["modfied_nodes"] indexed by the start position of the modified_nodes 
         self.debug = False
@@ -89,7 +91,31 @@ class Bugger(Codemod):
                 print("Checking if the debugged code is equal to the original code..")
                 diff = deep_equals_with_print(self.original,self.clean)
                 print("The result of deep_equals between the concrete syntax tree of the original and debugged code is {}".format(diff))
-           
+    def get_bugs(self):
+        positions = []
+        authors = []
+        bugs = []
+        detections = []
+        cleans = []
+        debugs = []
+        for modified in self.context.scratch.values():
+            bug_type = modified["author"]
+            authors.append(bug_type)
+            pos = modified["original_position"]
+            start_line, start_column = pos.start.line, pos.start.column
+            end_line, end_column = pos.end.line, pos.end.column
+            bugstr = "The following Node has a bug of type {} starting at line {}, column {} and ending at line {}, column {}.".format(bug_type,start_line,start_column,end_line,end_column)
+            positions.append((start_line,start_column,end_line,end_column))
+            detections.append(bugstr)
+            bugged_code = self.tainted.code_for_node(modified["updated_node"])
+            bugs.append(bugged_code)
+            debugged_code = self.original.code_for_node(modified["original_node"])
+            cleans.append(debugged_code)
+            debugstr="The bug can be fixed by substituting the bugged code-string <{}> with the following code-string <{}>".format(bugged_code,debugged_code)
+            debugs.append(debugstr)
+        bugs = {"positions":positions,"detections":detections,"bugs":bugs,"cleans":cleans,"debugs":debugs, "authors":authors}
+        return bugs
+
     def print_bugs(self):
         for modified in self.context.scratch.values():
             bug_type = modified["author"]
@@ -115,11 +141,13 @@ class Bugger(Codemod):
                 
             else:
                 tainted = transformer.mutate(tainted)
-            tainted = self.position_updater.transform_module(tainted) 
+            tainted = self.position_updater.transform_module(tainted)
         if self.debug: 
             self.clean=self.debug_steps[-1]
-        else:       
-            self.tainted = tainted   
+        elif self.bug_selector:
+            tainted = self.bug_selector.select(tainted)
+            tainted = self.position_updater.transform_module(tainted)      
+        self.tainted = tainted   
 
         return tainted
     
@@ -160,6 +188,80 @@ class InverseTransformer(ContextAwareTransformer):
                 old_node= self.context.scratch[meta_pos.start]["original_node"]
                 self.context.scratch[meta_pos.start]["debugged_node"]=old_node
                 updated_node=old_node
+                
+                # print("reverting to old node",meta_pos.start, meta_pos.end)
+                # print("current node",original_node)
+                # print("reverting to node",updated_node)
+            return updated_node   
+        def leave_ComparisonTarget(self, original_node:cst.ComparisonTarget, updated_node: cst.ComparisonTarget) -> None:
+            return self.invert_node(original_node,updated_node)
+        def leave_Assign(self, original_node:cst.Assign, updated_node: cst.Assign):
+            return self.invert_node(original_node,updated_node)
+        def leave_While(self, original_node:cst.While, updated_node: cst.While):
+            return self.invert_node(original_node,updated_node) 
+        def leave_Comparison(self, original_node:cst.Comparison, updated_node: cst.Comparison):
+            return self.invert_node(original_node,updated_node)        
+        def leave_Index(self, original_node:cst.Index, updated_node: cst.Index):
+            return self.invert_node(original_node,updated_node)
+        def leave_Slice(self, original_node:cst.Slice, updated_node: cst.Slice):
+            return self.invert_node(original_node,updated_node)
+        def leave_ExceptHandler(self, original_node:cst.ExceptHandler, updated_node: cst.ExceptHandler):
+            return self.invert_node(original_node,updated_node)
+        def leave_Call(self, original_node:cst.Call, updated_node: cst.Call):
+            return self.invert_node(original_node,updated_node)
+        def leave_Return(self, original_node:cst.Return, updated_node: cst.Return):
+            return self.invert_node(original_node,updated_node)
+        def leave_List(self, original_node:cst.List, updated_node: cst.List):
+            return self.invert_node(original_node,updated_node)
+        def leave_Dict(self, original_node:cst.Dict, updated_node: cst.Dict):
+            return self.invert_node(original_node,updated_node)
+        def leave_FunctionDef(self, original_node:cst.FunctionDef, updated_node: cst.FunctionDef):
+            return self.invert_node(original_node,updated_node)
+        def leave_Integer(self, original_node:cst.Integer, updated_node: cst.Integer):
+            return self.invert_node(original_node,updated_node)
+        def leave_SimpleString(self, original_node:cst.SimpleString, updated_node: cst.SimpleString):
+            return self.invert_node(original_node,updated_node)
+        def leave_Float(self, original_node:cst.Float, updated_node: cst.Float):
+            return self.invert_node(original_node,updated_node)
+        def leave_Attribute(self, original_node:cst.Attribute, updated_node: cst.Attribute):
+            return self.invert_node(original_node,updated_node)
+        
+
+class BugSelectorTransformer(ContextAwareTransformer):
+        """ A transformer that inverts the changes made by other transformers that share the same context"""
+        METADATA_DEPENDENCIES = (PositionProvider, )
+        def __init__(self, context: CodemodContext, num_bugs_to_keep):
+            super().__init__(context)
+            self.num_bugs_to_keep = num_bugs_to_keep
+            self.bugs_to_keep = set()
+            self.id = f"{self.__class__.__name__}-{uuid.uuid4().hex[:4]}"
+
+        def select(self, tree: cst.Module) -> cst.Module:
+            all_bugs = [key for key, value in self.context.scratch.items()]
+            if len(all_bugs) > self.num_bugs_to_keep:
+                self.bugs_to_keep = set(random.sample(all_bugs, self.num_bugs_to_keep))
+            else:
+                self.bugs_to_keep = set(all_bugs)
+            return self.transform_module(tree)
+       
+        def transform_module_impl(self, tree: cst.Module) -> cst.Module:
+            return tree.visit(self)
+
+        def invert_node(self, original_node:cst.CSTNode, updated_node: cst.CSTNode) ->   cst.CSTNode:
+            meta_pos = self.get_metadata(PositionProvider, original_node)
+            #only updates nodes that are not already in the scratch
+            already_modified  = [x for x in self.context.scratch.values() if meta_pos.start== x["original_position"].start]
+            # if already_modified:
+                # print("already found a node modified by",already_modified[0]["author"])
+                # print("current author is",self.id)
+            if already_modified and meta_pos.start not in self.bugs_to_keep:
+                # print("reverting to old node",meta_pos.start, meta_pos.end)
+                old_node= self.context.scratch[meta_pos.start]["original_node"]
+                self.context.scratch[meta_pos.start]["debugged_node"]=old_node
+                updated_node=old_node
+                #pop the node from the scratch
+                self.context.scratch.pop(meta_pos.start)
+                save_modified(self.context, meta_pos, original_node, updated_node, self.id)
                 # print("reverting to old node",meta_pos.start, meta_pos.end)
                 # print("current node",original_node)
                 # print("reverting to node",updated_node)
