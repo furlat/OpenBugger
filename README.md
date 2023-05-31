@@ -22,7 +22,7 @@ To install OpenBugger, use pip:
 Clone repo
 
 ```python
-python3 -m pip install --editable /Users/iridella/Documents/OpenBugger/
+python3 -m pip install --editabl youtpathto/OpenBugger/
 ```
 
 
