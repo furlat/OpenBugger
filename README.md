@@ -5,7 +5,8 @@ Code to create bugged python scripts for OpenAssistant Training, maintained by [
 OpenBugger
 
 OpenBugger is a tool for injecting various types of bugs into Python scripts in order to test the robustness of your code and practice debugging skills. It comes with a library of bug injection methods for different severity levels and error types, such as syntax errors, logic errors, and runtime errors.
-
+## BuggedLeetCodeDataset
+https://huggingface.co/datasets/NeuroDragon/BuggedPythonLeetCode/blob/main/README.md
 ## ONGOING LIBCST REFACTOR
 We migrated to LIBCST! Still a lot of integrations to finish.
 
